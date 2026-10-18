@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="compose.yaml" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Driftgrid.Api/Driftgrid.Api.csproj" />
     <Project Path="src/Driftgrid.Application/Driftgrid.Application.csproj" />
