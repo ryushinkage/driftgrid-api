@@ -1,0 +1,6 @@
+@Driftgrid.Api_HostAddress = http://localhost:5229
+
+GET {{Driftgrid.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

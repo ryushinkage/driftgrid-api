@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Driftgrid.Api/Driftgrid.Api.csproj" />
+    <Project Path="src/Driftgrid.Application/Driftgrid.Application.csproj" />
+    <Project Path="src/Driftgrid.Domain/Driftgrid.Domain.csproj" />
+    <Project Path="src/Driftgrid.Infrastructure/Driftgrid.Infrastructure.csproj" />
+  </Folder>
+</Solution>
