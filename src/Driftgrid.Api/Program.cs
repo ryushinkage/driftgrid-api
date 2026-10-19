@@ -1,10 +1,12 @@
-
 using Driftgrid.Infrastructure.Health;
 using Driftgrid.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using StackExchange.Redis;
+using Driftgrid.Application.Abstractions.Persistence;
+using Driftgrid.Application.Features.Tracks;
+using Driftgrid.Infrastructure.Persistence.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,16 @@ var postgresConnection = builder.Configuration
 
 builder.Services.AddDbContext<DriftgridDbContext>(
     options => options.UseNpgsql(postgresConnection));
+
+
+builder.Services.AddScoped<ITrackRepository, TrackRepository>();
+
+builder.Services.AddMediatR(config =>
+{
+    config.RegisterServicesFromAssembly(
+        typeof(CreateTrackCommand).Assembly);
+});
+
 
 // redis
 var redisConnection = builder.Configuration
@@ -35,7 +47,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
     return ConnectionMultiplexer.Connect(options);
 });
 
-// health Checks
+// health checks
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<DriftgridDbContext>(
         name: "postgres",
