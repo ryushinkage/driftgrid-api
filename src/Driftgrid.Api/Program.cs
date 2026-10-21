@@ -10,6 +10,9 @@ using Driftgrid.Infrastructure.Persistence.Repositories;
 using Driftgrid.Api.Exceptions;
 using Driftgrid.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
+using Driftgrid.Application.Abstractions.Identity;
+using Driftgrid.Infrastructure.Identity;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,6 +53,10 @@ builder.Services
     .AddEntityFrameworkStores<DriftgridDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
+
+builder.Services.AddScoped<
+    IUserRegistrationService,
+    IdentityRegistrationService>();
 
 
 
@@ -135,6 +142,7 @@ static Task WriteHealthResponse(
             entry => entry.Key,
             entry => entry.Value.Status.ToString())
     });
+    
 }
 
 public partial class Program
