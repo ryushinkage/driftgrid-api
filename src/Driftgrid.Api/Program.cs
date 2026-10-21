@@ -8,6 +8,9 @@ using Driftgrid.Application.Abstractions.Persistence;
 using Driftgrid.Application.Features.Tracks;
 using Driftgrid.Infrastructure.Persistence.Repositories;
 using Driftgrid.Api.Exceptions;
+using Driftgrid.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +25,33 @@ var postgresConnection = builder.Configuration
 
 builder.Services.AddDbContext<DriftgridDbContext>(
     options => options.UseNpgsql(postgresConnection));
+
+
+builder.Services.AddDataProtection();
+
+builder.Services
+    .AddIdentityCore<ApplicationUser>(options =>
+    {
+        options.User.RequireUniqueEmail = true;
+
+        options.Password.RequiredLength = 10;
+        options.Password.RequireDigit = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireNonAlphanumeric = false;
+
+        options.Lockout.DefaultLockoutTimeSpan =
+            TimeSpan.FromMinutes(15);
+
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.AllowedForNewUsers = true;
+    })
+    .AddRoles<IdentityRole<Guid>>()
+    .AddEntityFrameworkStores<DriftgridDbContext>()
+    .AddSignInManager()
+    .AddDefaultTokenProviders();
+
+
 
 
 builder.Services.AddScoped<ITrackRepository, TrackRepository>();

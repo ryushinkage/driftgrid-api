@@ -1,11 +1,17 @@
 ﻿using Driftgrid.Domain.Entities;
+using Driftgrid.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Driftgrid.Infrastructure.Persistence;
 
 public sealed class DriftgridDbContext(
     DbContextOptions<DriftgridDbContext> options)
-    : DbContext(options)
+    : IdentityDbContext<
+        ApplicationUser,
+        IdentityRole<Guid>,
+        Guid>(options)
 {
     public DbSet<Track> Tracks => Set<Track>();
 
