@@ -2,6 +2,7 @@
 using Driftgrid.Application.Features.Tracks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Driftgrid.Application.Common.Pagination;
 
 namespace Driftgrid.Api.Controllers.V1;
 
@@ -11,15 +12,24 @@ public sealed class TracksController(ISender sender)
     : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<TrackDto>>> GetAll(
+
+    [HttpGet]
+    public async Task<ActionResult<PagedResult<TrackDto>>> GetAll(
+        [FromQuery] GetTracksRequest request,
         CancellationToken cancellationToken)
     {
-        var tracks = await sender.Send(
-            new GetTracksQuery(),
+        var result = await sender.Send(
+            new GetTracksQuery(
+                request.Page,
+                request.PageSize,
+                request.Search,
+                request.SortBy,
+                request.Descending),
             cancellationToken);
 
-        return Ok(tracks);
+        return Ok(result);
     }
+
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<TrackDto>> GetById(

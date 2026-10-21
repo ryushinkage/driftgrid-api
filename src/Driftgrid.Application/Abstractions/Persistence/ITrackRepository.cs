@@ -1,4 +1,5 @@
-﻿using Driftgrid.Domain.Entities;
+﻿using Driftgrid.Application.Common.Pagination;
+using Driftgrid.Domain.Entities;
 
 namespace Driftgrid.Application.Abstractions.Persistence;
 
@@ -8,21 +9,20 @@ public interface ITrackRepository
         Guid id,
         CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Track>> GetAllAsync(
+    Task<Track?> GetTrackedByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken);
+
+    Task<PagedResult<Track>> GetPagedAsync(
+        TrackSearchOptions options,
         CancellationToken cancellationToken);
 
     Task AddAsync(
         Track track,
         CancellationToken cancellationToken);
 
-    Task<int> SaveChangesAsync(
-        CancellationToken cancellationToken);
-    
-    
-    Task<Track?> GetTrackedByIdAsync(
-        Guid id,
-        CancellationToken cancellationToken);
-
     void Remove(Track track);
 
+    Task<int> SaveChangesAsync(
+        CancellationToken cancellationToken);
 }
