@@ -106,3 +106,8 @@ static Task WriteHealthResponse(
             entry => entry.Value.Status.ToString())
     });
 }
+
+public partial class Program
+{
+    
+}
