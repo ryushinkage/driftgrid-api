@@ -7,6 +7,7 @@ using StackExchange.Redis;
 using Driftgrid.Application.Abstractions.Persistence;
 using Driftgrid.Application.Features.Tracks;
 using Driftgrid.Infrastructure.Persistence.Repositories;
+using Driftgrid.Api.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,7 +60,14 @@ builder.Services.AddHealthChecks()
         tags: ["ready"],
         timeout: TimeSpan.FromSeconds(3));
 
+
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<DomainExceptionHandler>();
+
 var app = builder.Build();
+
+app.UseExceptionHandler();
+
 
 if (app.Environment.IsDevelopment())
 {

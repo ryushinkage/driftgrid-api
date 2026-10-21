@@ -31,7 +31,9 @@ public sealed class TracksController(ISender sender)
             cancellationToken);
 
         if (track is null)
-            return NotFound();
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: "Track not found");;
 
         return Ok(track);
     }
@@ -52,4 +54,48 @@ public sealed class TracksController(ISender sender)
             new { id = track.Id },
             track);
     }
+    
+    
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(
+        Guid id,
+        [FromBody] UpdateTrackRequest request,
+        CancellationToken cancellationToken)
+    {
+        var updated = await sender.Send(
+            new UpdateTrackCommand(
+                id,
+                request.Name,
+                request.Location),
+            cancellationToken);
+
+        if (!updated)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: "Track not found");
+        }
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var deleted = await sender.Send(
+            new DeleteTrackCommand(id),
+            cancellationToken);
+
+        if (!deleted)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: "Track not found");
+        }
+
+        return NoContent();
+    }
+
 }

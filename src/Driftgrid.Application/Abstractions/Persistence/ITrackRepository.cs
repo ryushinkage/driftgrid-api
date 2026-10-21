@@ -17,4 +17,12 @@ public interface ITrackRepository
 
     Task<int> SaveChangesAsync(
         CancellationToken cancellationToken);
+    
+    
+    Task<Track?> GetTrackedByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken);
+
+    void Remove(Track track);
+
 }

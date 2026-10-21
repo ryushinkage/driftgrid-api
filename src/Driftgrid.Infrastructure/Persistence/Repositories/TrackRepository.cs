@@ -43,4 +43,21 @@ public sealed class TrackRepository(
         return context.SaveChangesAsync(
             cancellationToken);
     }
+    
+    public Task<Track?> GetTrackedByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        return context.Tracks
+            .AsTracking()
+            .FirstOrDefaultAsync(
+                track => track.Id == id,
+                cancellationToken);
+    }
+
+    public void Remove(Track track)
+    {
+        context.Tracks.Remove(track);
+    }
+
 }

@@ -8,4 +8,7 @@
     <Project Path="src/Driftgrid.Domain/Driftgrid.Domain.csproj" />
     <Project Path="src/Driftgrid.Infrastructure/Driftgrid.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Driftgrid.UnitTests/Driftgrid.UnitTests.csproj" />
+  </Folder>
 </Solution>
