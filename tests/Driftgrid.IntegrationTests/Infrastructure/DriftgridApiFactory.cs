@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
 using Testcontainers.Redis;
 using Xunit;
+using System.Text;
+
 
 namespace Driftgrid.IntegrationTests.Infrastructure;
 
@@ -35,6 +37,17 @@ public sealed class DriftgridApiFactory
         builder.UseSetting(
             "ConnectionStrings:Redis",
             _redis.GetConnectionString());
+        
+        builder.UseSetting("Jwt:Issuer", "Driftgrid.Api");
+        builder.UseSetting("Jwt:Audience", "Driftgrid.Client");
+        builder.UseSetting("Jwt:AccessTokenMinutes", "15");
+
+        builder.UseSetting(
+            "Jwt:SigningKeyBase64",
+            Convert.ToBase64String(
+                Encoding.UTF8.GetBytes(
+                    "driftgrid-test-only-jwt-key-not-for-production")));
+
     }
 
     public async Task InitializeAsync()

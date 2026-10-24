@@ -12,6 +12,11 @@ using Driftgrid.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Driftgrid.Application.Abstractions.Identity;
 using Driftgrid.Infrastructure.Identity;
+using Driftgrid.Infrastructure.Authentication;
+using Driftgrid.Application.Abstractions.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
 
 
 
@@ -101,7 +106,96 @@ builder.Services.AddHealthChecks()
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 
+
+var jwtOptions = builder.Configuration
+    .GetSection(JwtOptions.SectionName)
+    .Get<JwtOptions>()
+    ?? throw new InvalidOperationException(
+        "JWT configuration is missing.");
+
+if (string.IsNullOrWhiteSpace(jwtOptions.Issuer) ||
+    string.IsNullOrWhiteSpace(jwtOptions.Audience) ||
+    string.IsNullOrWhiteSpace(jwtOptions.SigningKeyBase64))
+{
+    throw new InvalidOperationException(
+        "JWT configuration is incomplete.");
+}
+
+byte[] signingKeyBytes;
+
+try
+{
+    signingKeyBytes = Convert.FromBase64String(
+        jwtOptions.SigningKeyBase64);
+}
+catch (FormatException ex)
+{
+    throw new InvalidOperationException(
+        "JWT signing key must be valid Base64.", ex);
+}
+
+if (signingKeyBytes.Length < 32)
+{
+    throw new InvalidOperationException(
+        "JWT signing key must be at least 256 bits.");
+}
+
+if (jwtOptions.AccessTokenMinutes is < 1 or > 60)
+{
+    throw new InvalidOperationException(
+        "JWT lifetime must be between 1 and 60 minutes.");
+}
+
+builder.Services.AddSingleton(jwtOptions);
+
+builder.Services.AddScoped<
+    IJwtTokenGenerator,
+    JwtTokenGenerator>();
+
+builder.Services.AddScoped<
+    IUserLoginService,
+    IdentityLoginService>();
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.MapInboundClaims = false;
+
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = jwtOptions.Issuer,
+
+                ValidateAudience = true,
+                ValidAudience = jwtOptions.Audience,
+
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(signingKeyBytes),
+
+                RequireSignedTokens = true,
+                RequireExpirationTime = true,
+                ValidateLifetime = true,
+
+                ClockSkew = TimeSpan.FromSeconds(30),
+
+                NameClaimType = "sub",
+                RoleClaimType = "role",
+
+                ValidAlgorithms =
+                [
+                    SecurityAlgorithms.HmacSha256
+                ]
+            };
+    });
+
+builder.Services.AddAuthorization();
+
+
 var app = builder.Build();
+
 
 app.UseExceptionHandler();
 
@@ -111,6 +205,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 // liveness: the API process is responding

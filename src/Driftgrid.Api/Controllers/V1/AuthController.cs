@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace Driftgrid.Api.Controllers.V1;
 
 [ApiController]
@@ -51,4 +52,44 @@ public sealed class AuthController(ISender sender)
                 "Unexpected registration status.")
         };
     }
+    
+    [HttpPost("login")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Login(
+        [FromBody] LoginRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(
+            new LoginCommand(
+                request.Email,
+                request.Password),
+            cancellationToken);
+
+        if (result is null)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Invalid credentials");
+        }
+
+        return Ok(new LoginResponse(
+            result.AccessToken,
+            "Bearer",
+            result.ExpiresAtUtc));
+    }
+
+    [HttpGet("me")]
+    [Authorize]
+    public IActionResult Me()
+    {
+        return Ok(new
+        {
+            id = User.FindFirst("sub")?.Value,
+            email = User.FindFirst("email")?.Value,
+            roles = User.FindAll("role")
+                .Select(claim => claim.Value)
+                .ToArray()
+        });
+    }
+
 }
