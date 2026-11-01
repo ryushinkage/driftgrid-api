@@ -2,13 +2,13 @@
 using Driftgrid.Application.Features.Auth;
 using Microsoft.AspNetCore.Identity;
 
-
 namespace Driftgrid.Infrastructure.Identity;
 
 public sealed class IdentityLoginService(
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
-    IJwtTokenGenerator tokenGenerator)
+    IJwtTokenGenerator tokenGenerator,
+    IRefreshTokenService refreshTokenService)
     : IUserLoginService
 {
     public async Task<LoginResult?> LoginAsync(
@@ -35,9 +35,20 @@ public sealed class IdentityLoginService(
 
         var roles = await userManager.GetRolesAsync(user);
 
-        return tokenGenerator.Generate(
+        var accessToken = tokenGenerator.Generate(
             user.Id,
             user.Email!,
             roles.ToArray());
+
+        var refreshToken =
+            await refreshTokenService.IssueAsync(
+                user.Id,
+                cancellationToken);
+
+        return new LoginResult(
+            accessToken.AccessToken,
+            accessToken.ExpiresAtUtc,
+            refreshToken.Token,
+            refreshToken.ExpiresAtUtc);
     }
 }

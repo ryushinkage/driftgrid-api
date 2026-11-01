@@ -156,6 +156,11 @@ builder.Services.AddScoped<
     IUserLoginService,
     IdentityLoginService>();
 
+builder.Services.AddScoped<
+    IRefreshTokenService,
+    EfRefreshTokenService>();
+
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

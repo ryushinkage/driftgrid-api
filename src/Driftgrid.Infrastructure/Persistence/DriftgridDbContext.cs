@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace Driftgrid.Infrastructure.Persistence;
 
 public sealed class DriftgridDbContext(
@@ -14,6 +15,8 @@ public sealed class DriftgridDbContext(
         Guid>(options)
 {
     public DbSet<Track> Tracks => Set<Track>();
+    
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(
         ModelBuilder modelBuilder)

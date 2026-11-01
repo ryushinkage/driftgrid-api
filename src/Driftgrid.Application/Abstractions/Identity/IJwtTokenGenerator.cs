@@ -4,7 +4,7 @@ namespace Driftgrid.Application.Abstractions.Identity;
 
 public interface IJwtTokenGenerator
 {
-    LoginResult Generate(
+    AccessTokenResult Generate(
         Guid userId,
         string email,
         IReadOnlyList<string> roles);

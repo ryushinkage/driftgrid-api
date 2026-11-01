@@ -72,10 +72,53 @@ public sealed class AuthController(ISender sender)
                 title: "Invalid credentials");
         }
 
+        
         return Ok(new LoginResponse(
             result.AccessToken,
             "Bearer",
-            result.ExpiresAtUtc));
+            result.ExpiresAtUtc,
+            result.RefreshToken,
+            result.RefreshTokenExpiresAtUtc));
+
+    }
+
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Refresh(
+        [FromBody] RefreshTokenRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(
+            new RefreshSessionCommand(request.RefreshToken),
+            cancellationToken);
+
+        if (result is null)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Invalid or expired refresh token");
+        }
+
+        return Ok(new LoginResponse(
+            result.AccessToken,
+            "Bearer",
+            result.ExpiresAtUtc,
+            result.RefreshToken,
+            result.RefreshTokenExpiresAtUtc));
+    }
+
+    [HttpPost("logout")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Logout(
+        [FromBody] RefreshTokenRequest request,
+        CancellationToken cancellationToken)
+    {
+        await sender.Send(
+            new RevokeRefreshSessionCommand(
+                request.RefreshToken),
+            cancellationToken);
+
+        return NoContent();
     }
 
     [HttpGet("me")]
@@ -91,5 +134,4 @@ public sealed class AuthController(ISender sender)
                 .ToArray()
         });
     }
-
 }

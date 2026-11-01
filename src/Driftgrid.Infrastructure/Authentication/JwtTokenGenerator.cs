@@ -9,7 +9,7 @@ namespace Driftgrid.Infrastructure.Authentication;
 public sealed class JwtTokenGenerator(JwtOptions options)
     : IJwtTokenGenerator
 {
-    public LoginResult Generate(
+    public AccessTokenResult Generate(
         Guid userId,
         string email,
         IReadOnlyList<string> roles)
@@ -54,9 +54,7 @@ public sealed class JwtTokenGenerator(JwtOptions options)
         var handler = new JsonWebTokenHandler();
 
         var token = handler.CreateToken(descriptor);
-
-        return new LoginResult(
-            token,
-            expires);
+        
+        return new AccessTokenResult(token, expires);
     }
 }
