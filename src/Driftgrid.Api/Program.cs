@@ -16,6 +16,7 @@ using Driftgrid.Infrastructure.Authentication;
 using Driftgrid.Application.Abstractions.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Driftgrid.Api.Authorization;
 
 
 
@@ -62,9 +63,6 @@ builder.Services
 builder.Services.AddScoped<
     IUserRegistrationService,
     IdentityRegistrationService>();
-
-
-
 
 builder.Services.AddScoped<ITrackRepository, TrackRepository>();
 
@@ -196,11 +194,17 @@ builder.Services
             };
     });
 
-builder.Services.AddAuthorization();
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(
+        AuthorizationPolicies.ManageTracks,
+        policy => policy
+            .RequireAuthenticatedUser()
+            .RequireRole(ApplicationRoles.Admin));
+});
 
 var app = builder.Build();
-
 
 app.UseExceptionHandler();
 

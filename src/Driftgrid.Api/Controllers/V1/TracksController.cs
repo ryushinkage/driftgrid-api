@@ -3,6 +3,8 @@ using Driftgrid.Application.Features.Tracks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Driftgrid.Application.Common.Pagination;
+using Driftgrid.Api.Authorization;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Driftgrid.Api.Controllers.V1;
 
@@ -12,8 +14,7 @@ public sealed class TracksController(ISender sender)
     : ControllerBase
 {
     [HttpGet]
-
-    [HttpGet]
+    
     public async Task<ActionResult<PagedResult<TrackDto>>> GetAll(
         [FromQuery] GetTracksRequest request,
         CancellationToken cancellationToken)
@@ -49,6 +50,7 @@ public sealed class TracksController(ISender sender)
     }
 
     [HttpPost]
+    [Authorize(Policy = AuthorizationPolicies.ManageTracks)]
     public async Task<ActionResult<TrackDto>> Create(
         [FromBody] CreateTrackRequest request,
         CancellationToken cancellationToken)
@@ -67,6 +69,7 @@ public sealed class TracksController(ISender sender)
     
     
     [HttpPut("{id:guid}")]
+    [Authorize(Policy = AuthorizationPolicies.ManageTracks)]
     public async Task<IActionResult> Update(
         Guid id,
         [FromBody] UpdateTrackRequest request,
@@ -90,6 +93,7 @@ public sealed class TracksController(ISender sender)
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Policy = AuthorizationPolicies.ManageTracks)]
     public async Task<IActionResult> Delete(
         Guid id,
         CancellationToken cancellationToken)
@@ -107,5 +111,4 @@ public sealed class TracksController(ISender sender)
 
         return NoContent();
     }
-
 }
