@@ -158,6 +158,10 @@ builder.Services.AddScoped<
     IRefreshTokenService,
     EfRefreshTokenService>();
 
+builder.Services.AddScoped<
+    IPilotProfileRepository,
+    PilotProfileRepository>();
+
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -195,6 +199,7 @@ builder.Services
     });
 
 
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy(
@@ -202,7 +207,15 @@ builder.Services.AddAuthorization(options =>
         policy => policy
             .RequireAuthenticatedUser()
             .RequireRole(ApplicationRoles.Admin));
+
+    options.AddPolicy(
+        AuthorizationPolicies.PilotOnly,
+        policy => policy
+            .RequireAuthenticatedUser()
+            .RequireRole(ApplicationRoles.Pilot));
 });
+
+
 
 var app = builder.Build();
 
@@ -213,7 +226,6 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
 
 app.UseAuthentication();
 app.UseAuthorization();

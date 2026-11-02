@@ -17,6 +17,9 @@ public sealed class DriftgridDbContext(
     public DbSet<Track> Tracks => Set<Track>();
     
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<PilotProfile> PilotProfiles =>
+        Set<PilotProfile>();
+
 
     protected override void OnModelCreating(
         ModelBuilder modelBuilder)

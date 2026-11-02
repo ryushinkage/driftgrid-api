@@ -4,6 +4,7 @@ using Driftgrid.Application.Features.Auth;
 using Driftgrid.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Driftgrid.Domain.Entities;
 using Npgsql;
 
 namespace Driftgrid.Infrastructure.Identity;
@@ -70,7 +71,18 @@ public sealed class IdentityRegistrationService(
                 throw new InvalidOperationException(
                     "Failed to assign the default Pilot role.");
             }
+            
+            var defaultCallsign =
+                $"Pilot-{user.Id.ToString("N")[..8]}";
 
+            dbContext.PilotProfiles.Add(
+                new PilotProfile(
+                    user.Id,
+                    defaultCallsign));
+
+            await dbContext.SaveChangesAsync(
+                cancellationToken);
+            
             await transaction.CommitAsync(cancellationToken);
 
             return new RegisterPilotResult(
