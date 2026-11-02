@@ -66,6 +66,10 @@ builder.Services.AddScoped<
 
 builder.Services.AddScoped<ITrackRepository, TrackRepository>();
 
+builder.Services.AddScoped<
+    IGarageCarRepository,
+    GarageCarRepository>();
+
 builder.Services.AddMediatR(config =>
 {
     config.RegisterServicesFromAssembly(

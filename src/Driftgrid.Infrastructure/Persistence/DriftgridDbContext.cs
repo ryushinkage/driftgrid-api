@@ -17,10 +17,12 @@ public sealed class DriftgridDbContext(
     public DbSet<Track> Tracks => Set<Track>();
     
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+        
     public DbSet<PilotProfile> PilotProfiles =>
         Set<PilotProfile>();
-
-
+    
+    public DbSet<GarageCar> GarageCars => Set<GarageCar>();
+    
     protected override void OnModelCreating(
         ModelBuilder modelBuilder)
     {
